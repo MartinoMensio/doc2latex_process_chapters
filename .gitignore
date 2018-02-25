@@ -1,5 +1,5 @@
 ## source directory (from https://www.docx2latex.com/docx2latex_free)
-source/
+source/*
 !source/README.md
 
 ## output directory is a submodule
