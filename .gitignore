@@ -2,5 +2,4 @@
 source/
 !source/README.md
 
-## output directory
-out/
+## output directory is a submodule
