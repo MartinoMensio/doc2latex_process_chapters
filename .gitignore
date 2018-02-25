@@ -1,0 +1,6 @@
+## source directory (from https://www.docx2latex.com/docx2latex_free)
+source/
+!source/README.md
+
+## output directory
+out/
