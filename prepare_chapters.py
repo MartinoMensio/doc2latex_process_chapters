@@ -38,7 +38,7 @@ def process_file(file_path, output_path):
     file_content = re.sub(r'\n{3,}', r'\n\n', file_content)
 
     # footnote to cite
-    file_content = re.sub(r'\s*\\footnote{\sKey:(\w*)\s[^}]*\s}', r'~\\cite{\1}', file_content)
+    file_content = re.sub(r'\s*\\footnote{\s*Key:(\w*)\s[^}]*}', r'~\\cite{\1}', file_content)
 
     delimiter = '\\chapter{'
     partial_file_header = '% !TEX encoding = utf8\n% !TEX root = ../main.tex\n\n'

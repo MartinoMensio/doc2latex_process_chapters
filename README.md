@@ -2,9 +2,15 @@
 
 This tool, given a Google Doc exported to latex using https://www.docx2latex.com/, cleans up the content and produces the chapter files (and abstract) that can be loaded in another latex template.
 
-To make this work
+To make this work, specific rules have to be used while writing the Google Docs document:
 
-- ensure to use Google Docs hierarchical headings, and for the abstract write it between the title ( preceeded by the underlined `Abstract` line) and before the first heading
+- ensure to use Google Docs hierarchical headings
+- for the abstract write it between the title ( preceeded by the underlined `Abstract` line) and before the first heading
+- footnotes to citations must be in the form `Key:BIBITEM_KEY ANY_TEXT CAN FOLLOW` where `BIBITEM_KEY` is the identifier of the bibitem.
+- to have cross references use `[REF NUMBER]` where `NUMBER` is something like `3.2`, identifying a label created by this script (TODO IMPLEMENTATION)
+
+Procedure:
+
 - use Doc2Latex https://www.docx2latex.com/docx2latex_free
 - extract the `.zip` file in the subdirectory `source`
 - run the python script
