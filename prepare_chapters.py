@@ -7,6 +7,7 @@ def main():
     input()
     input_path = './source'
     output_path = './out/partials'
+    subprocess.call(['rm', '-rf', './out/media/'])
     subprocess.call(['cp', '-r', './source/media/', './out/'])
     for filename in os.listdir(input_path):
         if re.match(r'.*\.tex', filename):
@@ -34,16 +35,29 @@ def process_file(file_path, output_path):
     file_content = re.sub(r'\\href{}', '', file_content)
     # remove ugly vertical spaces
     file_content = re.sub(r'\\vspace{\\baselineskip}', '', file_content)
+    # remove manual page breaks
+    file_content = re.sub(r'\\newpage', '', file_content)
     # remove empty lines
     file_content = re.sub(r'\n{3,}', r'\n\n', file_content)
 
+
     # footnote to cite
     file_content = re.sub(r'\s*\\footnote{\s*Key:(\w*)\s[^}]*}', r'~\\cite{\1}', file_content)
+    # build links from URLs
+    file_content = re.sub(r'\\footnote{\s*(http\S+)\s*}', r'\\footnote{\\url{\1}}', file_content)
+
+    # placeholder for figures and tables
+    file_content = re.sub(r'\\end{figure}', r'\\caption{FIGURE NAME}\n\\end{figure}', file_content)
+    file_content = re.sub(r'\\end{table}', r'\\caption{TABLE NAME}\n\\end{table}', file_content)
 
     delimiter = '\\chapter{'
     partial_file_header = '% !TEX encoding = utf8\n% !TEX root = ../main.tex\n\n'
+    partial_file_header += '% This content has been generated automatically from https://www.docx2latex.com/docx2latex_free and https://github.com/MartinoMensio/doc2latex_process_chapters \n'
+    partial_file_header += '% Consider editing the source Google Doc instead of this one!\n\n\n'
     for i, c in enumerate(file_content.split('\\chapter{')):
         if i == 0:
+            # abstract sections are not to be shown in Table Of Contents
+            c = re.sub(r'\\section{([^}]*)}', r'\\section*{\1}', c)
             write_file('abstract.tex', partial_file_header + c, output_path)
         else:
             write_file('chapter_{}.tex'.format(i), partial_file_header + delimiter + c, output_path)
