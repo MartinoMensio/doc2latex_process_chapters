@@ -41,14 +41,16 @@ def process_file(file_path, output_path, substitute_pictures):
     file_content = re.sub(r'\\vspace{\\baselineskip}', '', file_content)
     # remove manual page breaks
     file_content = re.sub(r'\\newpage', '', file_content)
-    # remove empty lines
-    file_content = re.sub(r'\n{3,}', r'\n\n', file_content)
 
 
     # footnote to cite
     file_content = re.sub(r'\s*\\footnote{\s*Key:(\w*)\s[^}]*}', r'~\\cite{\1}', file_content)
     # build links from URLs
     file_content = re.sub(r'\\footnote{\s*(http\S+)\s*}', r'\\footnote{\\url{\1}}', file_content)
+
+    # manual alignment of text
+    file_content = re.sub(r'\\begin{FlushLeft}', '', file_content)
+    file_content = re.sub(r'\\end{FlushLeft}', '', file_content)
 
     # placeholder for figures and tables
     file_content = re.sub(r'\\end{table}', r'\\caption{TABLE NAME}\n\\end{table}', file_content)
@@ -59,9 +61,14 @@ def process_file(file_path, output_path, substitute_pictures):
         # 1 remove figures
         file_content = re.sub(r'\\begin{figure}([^%]*)\\end{figure}', '', file_content)
         # 2 add vectorial pdf figures
-        file_content = re.sub(r'\[FIG:(\S*)\sCAPTION:([^]]*)\]', r'\\begin{figure}[!htbp]\n\    \centering\n\    \includegraphics[width=\\linewidth]{figures/\1}\n\    \caption{\2}\label{fig:\1}\n\\end{figure}', file_content)
+        file_content = re.sub(r'\[FIG:(\S*)\sCAPTION:([^]]*)\]', r'\\begin{figure}[!htbp]\n    \\centering\n    \\includegraphics[width=\\linewidth]{figures/\1}\n    \\caption{\2}\label{fig:\1}\n\\end{figure}', file_content)
         # 3 ref to figures
         file_content = re.sub(r'\s\[REF\sFIG:([^]]*)\]', r'~\\ref{fig:\1}', file_content)
+    
+    # remove \par because paragraphs are already separated by empty lines
+    file_content = re.sub(r'\\par', '', file_content)
+    # remove empty lines
+    file_content = re.sub(r'\n{3,}', r'\n\n', file_content)
 
     delimiter = '\\chapter{'
     partial_file_header = '% !TEX encoding = utf8\n% !TEX root = ../main.tex\n\n'
