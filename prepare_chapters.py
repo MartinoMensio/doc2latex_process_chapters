@@ -2,19 +2,23 @@ import os
 import re
 import subprocess
 
-def main():
+def main(substitute_pictures=False):
+    '''substitute_pictures=False uses the ./source/media raster images
+    
+    substitute_pictures=True uses the vectorial figures placed in ./out/figures'''
     print('step 1: download from https://www.docx2latex.com/docx2latex_free the latex document extract and place it in the "./source" directory. Enter when ready')
     input()
     input_path = './source'
     output_path = './out/partials'
     subprocess.call(['rm', '-rf', './out/media/'])
-    subprocess.call(['cp', '-r', './source/media/', './out/'])
+    if not substitute_pictures:
+        subprocess.call(['cp', '-r', './source/media/', './out/'])
     for filename in os.listdir(input_path):
         if re.match(r'.*\.tex', filename):
             print('found source file', filename)
-            process_file(os.path.join(input_path, filename), output_path)
+            process_file(os.path.join(input_path, filename), output_path, substitute_pictures)
 
-def process_file(file_path, output_path):
+def process_file(file_path, output_path, substitute_pictures):
     with open(file_path) as f:
         file_content = f.read()
     
@@ -47,8 +51,17 @@ def process_file(file_path, output_path):
     file_content = re.sub(r'\\footnote{\s*(http\S+)\s*}', r'\\footnote{\\url{\1}}', file_content)
 
     # placeholder for figures and tables
-    file_content = re.sub(r'\\end{figure}', r'\\caption{FIGURE NAME}\n\\end{figure}', file_content)
     file_content = re.sub(r'\\end{table}', r'\\caption{TABLE NAME}\n\\end{table}', file_content)
+    if not substitute_pictures:
+        # add placeholder captions for figures, to show up in list of figures
+        file_content = re.sub(r'\\end{figure}', r'\\caption{FIGURE NAME}\n\\end{figure}', file_content)
+    else:
+        # 1 remove figures
+        file_content = re.sub(r'\\begin{figure}([^%]*)\\end{figure}', '', file_content)
+        # 2 add vectorial pdf figures
+        file_content = re.sub(r'\[FIG:(\S*)\sCAPTION:([^]]*)\]', r'\\begin{figure}[!htbp]\n\    \centering\n\    \includegraphics[width=\\linewidth]{figures/\1}\n\    \caption{\2}\label{fig:\1}\n\\end{figure}', file_content)
+        # 3 ref to figures
+        file_content = re.sub(r'\s\[REF\sFIG:([^]]*)\]', r'~\\ref{fig:\1}', file_content)
 
     delimiter = '\\chapter{'
     partial_file_header = '% !TEX encoding = utf8\n% !TEX root = ../main.tex\n\n'
@@ -69,4 +82,4 @@ def write_file(file_name, content, output_path):
 
 
 if __name__ == '__main__':
-    main()
+    main(substitute_pictures=True)
