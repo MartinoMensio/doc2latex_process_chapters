@@ -2,23 +2,23 @@ import os
 import re
 import subprocess
 
-def main(substitute_pictures=False):
-    '''substitute_pictures=False uses the ./source/media raster images
+def main(only_vectorial_figures=False):
+    '''only_vectorial_figures=False uses the ./source/media raster images
     
-    substitute_pictures=True uses the vectorial figures placed in ./out/figures'''
+    only_vectorial_figures=True uses the vectorial figures placed in ./out/figures'''
     print('step 1: download from https://www.docx2latex.com/docx2latex_free the latex document extract and place it in the "./source" directory. Enter when ready')
     input()
     input_path = './source'
     output_path = './out/partials'
     subprocess.call(['rm', '-rf', './out/media/'])
-    if not substitute_pictures:
+    if not only_vectorial_figures:
         subprocess.call(['cp', '-r', './source/media/', './out/'])
     for filename in os.listdir(input_path):
         if re.match(r'.*\.tex', filename):
             print('found source file', filename)
-            process_file(os.path.join(input_path, filename), output_path, substitute_pictures)
+            process_file(os.path.join(input_path, filename), output_path, only_vectorial_figures)
 
-def process_file(file_path, output_path, substitute_pictures):
+def process_file(file_path, output_path, only_vectorial_figures):
     with open(file_path) as f:
         file_content = f.read()
     
@@ -52,19 +52,22 @@ def process_file(file_path, output_path, substitute_pictures):
     file_content = re.sub(r'\\begin{FlushLeft}', '', file_content)
     file_content = re.sub(r'\\end{FlushLeft}', '', file_content)
 
-    # placeholder for figures and tables
-    file_content = re.sub(r'\\end{table}', r'\\caption{TABLE NAME}\n\\end{table}', file_content)
-    if not substitute_pictures:
-        # add placeholder captions for figures, to show up in list of figures
-        file_content = re.sub(r'\\end{figure}', r'\\caption{FIGURE NAME}\n\\end{figure}', file_content)
-    else:
-        # 1 remove figures
-        file_content = re.sub(r'\\begin{figure}([^%]*)\\end{figure}', '', file_content)
-        # 2 add vectorial pdf figures
-        file_content = re.sub(r'\[FIG:(\S*)\sCAPTION:([^]]*)\]', r'\\begin{figure}[!htbp]\n    \\centering\n    \\includegraphics[width=\\linewidth]{figures/\1}\n    \\caption{\2}\label{fig:\1}\n\\end{figure}', file_content)
-        # 3 ref to figures
-        file_content = re.sub(r'\s\[REF\sFIG:([^]]*)\]', r'~\\ref{fig:\1}', file_content)
+    # table captions
+    file_content = re.sub(r'\\end{table}[^[]*\[TABLE CAPTION:([^]]*)\]', r'\\caption{\1}\n\\end{table}', file_content)
+    # add caption placeholder if no declared
+    file_content = re.sub(r'\\end{tabular}\s*\\end{table}', r'\\end{tabular}\\caption{TABLE NAME}\n\\end{table}', file_content)
+
+    # add placeholder captions for figures, to show up in list of figures
+    file_content = re.sub(r'\\end{figure}', r'\\caption{FIGURE NAME}\n\\end{figure}', file_content)
+
+    # 1 remove figures
+    #file_content = re.sub(r'\\begin{figure}([^%]*)\\end{figure}', '', file_content)
+    # remove figures that have vectorial pdf
+    file_content = re.sub(r'\\begin{figure}[^%]*\\end{figure}[^[]*\[FIG:(\S*)\sCAPTION:([^]]*)\]', r'\\begin{figure}[!htbp]\n    \\centering\n    \\includegraphics[width=\\linewidth]{figures/\1}\n    \\caption{\2}\label{fig:\1}\n\\end{figure}', file_content)
+    # 3 ref to figures
+    file_content = re.sub(r'\s\[REF\sFIG:([^]]*)\]', r'~\\ref{fig:\1}', file_content)
     
+
     # remove \par because paragraphs are already separated by empty lines
     file_content = re.sub(r'\\par', '', file_content)
     # remove empty lines
@@ -89,4 +92,4 @@ def write_file(file_name, content, output_path):
 
 
 if __name__ == '__main__':
-    main(substitute_pictures=True)
+    main(only_vectorial_figures=False)
