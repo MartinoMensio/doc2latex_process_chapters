@@ -32,6 +32,8 @@ def process_file(file_path, output_path, only_vectorial_figures):
     # unrecognized characters
     file_content = re.sub(r'[’‘]', '\'', file_content)
     file_content = re.sub(r'[–—]', '-', file_content)
+    file_content = re.sub(r'⋅', r'\\cdot ', file_content)
+    file_content = re.sub(r'ĉ', r'\\hat c', file_content)
     # strange table error
     #file_content = re.sub('}}}}', '}}', file_content)
     #file_content = re.sub('}}}', '}}', file_content)
@@ -53,9 +55,10 @@ def process_file(file_path, output_path, only_vectorial_figures):
     file_content = re.sub(r'\\end{FlushLeft}', '', file_content)
 
     # table captions
-    file_content = re.sub(r'\\end{table}[^[]*\[TABLE CAPTION:([^]]*)\]', r'\\caption{\1}\n\\end{table}', file_content)
+    file_content = re.sub(r'\\end{table}[^[]*\[TABLE:(\S+) CAPTION:([^]]*)\]', r'\\caption{\2}\\label{tab:\1}\n\\end{table}', file_content)
     # add caption placeholder if no declared
     file_content = re.sub(r'\\end{tabular}\s*\\end{table}', r'\\end{tabular}\\caption{TABLE NAME}\n\\end{table}', file_content)
+    file_content = re.sub(r'\s\[REF\sTABLE:(\S+)\]', r'~\\ref{tab:\1}', file_content)
 
     # add placeholder captions for figures, to show up in list of figures
     file_content = re.sub(r'\\end{figure}', r'\\caption{FIGURE NAME}\n\\end{figure}', file_content)
@@ -63,13 +66,17 @@ def process_file(file_path, output_path, only_vectorial_figures):
     # 1 remove figures
     #file_content = re.sub(r'\\begin{figure}([^%]*)\\end{figure}', '', file_content)
     # remove figures that have vectorial pdf
-    file_content = re.sub(r'\\begin{figure}[^%]*\\end{figure}[^[]*\[FIG:(\S*)\sCAPTION:([^]]*)\]', r'\\begin{figure}[!htbp]\n    \\centering\n    \\includegraphics[width=\\linewidth]{figures/\1}\n    \\caption{\2}\label{fig:\1}\n\\end{figure}', file_content)
+    file_content = re.sub(r'\\begin{figure}[^%]*\\end{figure}[^[]*\[FIG:(\S*)\sCAPTION:([^]]+)\]', r'\\begin{figure}[!htbp]\n    \\centering\n    \\includegraphics[width=\\linewidth]{figures/\1}\n    \\caption{\2}\label{fig:\1}\n\\end{figure}', file_content)
     # 3 ref to figures
-    file_content = re.sub(r'\s\[REF\sFIG:([^]]*)\]', r'~\\ref{fig:\1}', file_content)
+    file_content = re.sub(r'\s\[REF\sFIG:([^]]+)\]', r'~\\ref{fig:\1}', file_content)
+
+    # labels and ref management
+    file_content = re.sub(r'\[LABEL:([^]]+)\]', r'\\label{\1}', file_content)
+    file_content = re.sub(r'\[REF:([^]]+)\]', r'\\ref{\1}', file_content)
     
 
     # remove \par because paragraphs are already separated by empty lines
-    file_content = re.sub(r'\\par', '', file_content)
+    file_content = re.sub(r'\\par(\s+)', r'\1', file_content)
     # remove empty lines
     file_content = re.sub(r'\n{3,}', r'\n\n', file_content)
 

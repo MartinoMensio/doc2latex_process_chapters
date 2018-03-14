@@ -8,7 +8,8 @@ To make this work, specific rules have to be used while writing the Google Docs 
 - for the abstract write it between the title ( preceeded by the underlined `Abstract` line) and before the first heading
 - footnotes to citations must be in the form `Key:<BIBITEM_KEY> <ANY_TEXT CAN FOLLOW>` where `<BIBITEM_KEY>` is the identifier of the bibitem.
 - for images substitution, add a `[FIG:<figure_identifier> CAPTION:<caption to insert for the figure>]` and use refs like `[REF FIG:<figure_identifier>]` where `<figure_identifier>` is the name of the pdf file to be placed in the folder `figures`.
-- to have cross references use `[REF <NUMBER>]` where `<NUMBER>` is something like `3.2`, identifying a label created by this script (TODO IMPLEMENTATION)
+- for tables to be listed in TOC, use `[TABLE:<table_identifier> CAPTION:<Any text there>]`, that can be referenced with `[REF TABLE:<table_identifier>]`
+- to have cross references use `[REF <LABEL>]` where `<LABEL>` has been used inside a declaration `[LABEL:<LABEL>]`
 
 Procedure:
 
