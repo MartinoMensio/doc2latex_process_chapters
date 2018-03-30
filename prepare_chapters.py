@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+import plac
 
 def main(only_vectorial_figures=False):
     '''only_vectorial_figures=False uses the ./source/media raster images
@@ -22,7 +23,7 @@ def process_file(file_path, output_path, only_vectorial_figures):
     with open(file_path) as f:
         file_content = f.read()
     
-    file_content = re.search(r'\\begin{document}[\s\S]*\\uline{Abstract}\\par([\s\S]*)\\end{document}', file_content).groups()[0]
+    file_content = re.search(r'\\begin{document}[\s\S]*\\section{Abstract}([\s\S]*)\\end{document}', file_content).groups()[0]
 
     file_content = re.sub(r'\\section{', '\\chapter{', file_content)
     file_content = re.sub(r'\\subsection{', '\\section{', file_content)
@@ -66,7 +67,7 @@ def process_file(file_path, output_path, only_vectorial_figures):
     # 1 remove figures
     #file_content = re.sub(r'\\begin{figure}([^%]*)\\end{figure}', '', file_content)
     # remove figures that have vectorial pdf
-    file_content = re.sub(r'\\begin{figure}[^%]*\\end{figure}[^[]*\[FIG:(\S*)\sCAPTION:([^]]+)\]', r'\\begin{figure}[!htbp]\n    \\centering\n    \\includegraphics[width=\\linewidth]{figures/\1}\n    \\caption{\2}\label{fig:\1}\n\\end{figure}', file_content)
+    file_content = re.sub(r'\\begin{figure}[^%]*\\end{figure}[^[]*\[FIG:(\S*)\sCAPTION:([^]]+)\]', r'\\begin{figure}[!htbp]\n    \\centering\n    \\includegraphics[max width=\\linewidth,max height=8cm,keepaspectratio]{figures/\1}\n    \\caption{\2}\label{fig:\1}\n\\end{figure}', file_content)
     # 3 ref to figures
     file_content = re.sub(r'\s\[REF\sFIG:([^]]+)\]', r'~\\ref{fig:\1}', file_content)
 
@@ -99,4 +100,4 @@ def write_file(file_name, content, output_path):
 
 
 if __name__ == '__main__':
-    main(only_vectorial_figures=False)
+    plac.call(main)

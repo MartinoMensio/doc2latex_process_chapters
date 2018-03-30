@@ -5,7 +5,7 @@ This tool, given a Google Doc exported to latex using https://www.docx2latex.com
 To make this work, specific rules have to be used while writing the Google Docs document:
 
 - ensure to use Google Docs hierarchical headings
-- for the abstract write it between the title ( preceeded by the underlined `Abstract` line) and before the first heading
+- for the abstract write it between the title ( preceeded by the `Abstract` heading): its sections won't be displayed in the TOC.
 - footnotes to citations must be in the form `Key:<BIBITEM_KEY> <ANY_TEXT CAN FOLLOW>` where `<BIBITEM_KEY>` is the identifier of the bibitem.
 - for images substitution, add a `[FIG:<figure_identifier> CAPTION:<caption to insert for the figure>]` and use refs like `[REF FIG:<figure_identifier>]` where `<figure_identifier>` is the name of the pdf file to be placed in the folder `figures`.
 - for tables to be listed in TOC, use `[TABLE:<table_identifier> CAPTION:<Any text there>]`, that can be referenced with `[REF TABLE:<table_identifier>]`
