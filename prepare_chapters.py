@@ -56,7 +56,7 @@ def process_file(file_path, output_path, only_vectorial_figures):
     file_content = re.sub(r'\\end{FlushLeft}', '', file_content)
 
     # table captions
-    file_content = re.sub(r'\\end{table}[^[]*\[TABLE:(\S+) CAPTION:([^]]*)\]', r'\\caption{\2}\\label{tab:\1}\n\\end{table}', file_content)
+    file_content = re.sub(r'\\end{table}[^[]*\[TABLE:(\S+) CAPTION:([^]]*)\]', r'\\caption{\2}\\label{tab:\1}\n\\end{table}\n%%%%% TODO replace this table with next line\n%\\input{tables/\1}', file_content)
     # add caption placeholder if no declared
     file_content = re.sub(r'\\end{tabular}\s*\\end{table}', r'\\end{tabular}\\caption{TABLE NAME}\n\\end{table}', file_content)
     file_content = re.sub(r'\s\[REF\sTABLE:(\S+)\]', r'~\\ref{tab:\1}', file_content)
